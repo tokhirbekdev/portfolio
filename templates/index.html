@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ s.name }} | Portfolio</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <header class="nav">
+    <a class="logo" href="#top">{{ s.name }}</a>
+    <nav>
+      <a href="#about">about</a>
+      <a href="#projects">projects</a>
+      {% if gallery %}<a href="#gallery">gallery</a>{% endif %}
+      <a href="#contact">contact</a>
+    </nav>
+  </header>
+
+  <main id="top" class="site">
+    <section class="hero">
+      <div class="hero-text reveal">
+        <p class="prompt"><span class="user"></span><span class="path"></span></p>
+        <h1>{{ s.name }}<span class="cursor"></span></h1>
+        <p class="role">{{ s.title }}</p>
+        <p class="tagline">{{ s.tagline }}</p>
+        <div class="hero-actions">
+          <a class="btn" href="#projects">See my work</a>
+          <a class="btn ghost" href="#contact">Get in touch</a>
+        </div>
+      </div>
+      <div class="avatar reveal">
+        {% if s.photo %}
+          <img src="{{ url_for('static', filename='uploads/' + s.photo) }}" alt="{{ s.name }}">
+        {% else %}
+          <span>{{ s.name | initials }}</span>
+        {% endif %}
+      </div>
+    </section>
+
+    <section id="about" class="reveal">
+      <h2>About</h2>
+      <p class="lead">{{ s.about }}</p>
+      <ul class="chips">
+        {% for skill in s.skills | split_csv %}<li>{{ skill }}</li>{% endfor %}
+      </ul>
+    </section>
+
+    <section id="projects">
+      <h2 class="reveal">Projects</h2>
+      <div class="grid">
+        {% for p in projects %}
+        <article class="card reveal">
+          <div class="bar"><i></i><i></i><i></i><span>{{ (p.title | lower | replace(' ', '_')) }}.py</span></div>
+          <div class="thumb">
+            {% if p.image %}
+              <img src="{{ url_for('static', filename='uploads/' + p.image) }}" alt="{{ p.title }}" loading="lazy">
+            {% else %}
+              <span>{{ p.title[0] | upper }}</span>
+            {% endif %}
+          </div>
+          <div class="card-body">
+            <h3>{{ p.title }}</h3>
+            <p>{{ p.description }}</p>
+            <ul class="chips small">
+              {% for t in p.tech | split_csv %}<li>{{ t }}</li>{% endfor %}
+            </ul>
+            {% if p.link %}<a href="{{ p.link }}" target="_blank" rel="noopener">View project &rarr;</a>{% endif %}
+          </div>
+        </article>
+        {% else %}
+        <p class="muted">No projects yet.</p>
+        {% endfor %}
+      </div>
+    </section>
+
+    {% if gallery %}
+    <section id="gallery">
+      <h2 class="reveal">Gallery</h2>
+      <div class="gallery">
+        {% for g in gallery %}
+        <figure class="reveal">
+          <img src="{{ url_for('static', filename='uploads/' + g.image) }}" alt="{{ g.caption or 'Gallery image' }}" loading="lazy">
+          {% if g.caption %}<figcaption>{{ g.caption }}</figcaption>{% endif %}
+        </figure>
+        {% endfor %}
+      </div>
+    </section>
+    {% endif %}
+
+    <section id="contact" class="reveal">
+      <h2>Contact</h2>
+      <p class="lead">Want to work together or just say hi?</p>
+      <div class="term">
+        <div class="bar"><i></i><i></i><i></i><span>contact.txt</span></div>
+        <div class="term-body">
+          <p class="cmd"><b>$</b> cat contact.txt</p>
+          <p class="row"><span>email</span><a href="mailto:{{ s.email }}">{{ s.email }}</a></p>
+          <p class="row"><span>github</span><a href="{{ s.github }}" target="_blank" rel="noopener">{{ s.github }}</a></p>
+          <p class="row"><span>linkedin</span><a href="{{ s.linkedin }}" target="_blank" rel="noopener">{{ s.linkedin }}</a></p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    &copy; {{ s.name }} &middot; <a href="{{ url_for('admin') }}">admin</a>
+  </footer>
+
+  <div class="lightbox" id="lightbox"><img alt=""></div>
+
+  <script>
+    // Elements fade in smoothly as the page is scrolled
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('show'); io.unobserve(e.target); } });
+    }, { threshold: 0.12 });
+    document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+    // Click an image to enlarge it
+    const box = document.getElementById('lightbox');
+    document.querySelectorAll('.gallery img, .thumb img').forEach(img => {
+      img.addEventListener('click', () => { box.querySelector('img').src = img.src; box.classList.add('open'); });
+    });
+    box.addEventListener('click', () => box.classList.remove('open'));
+  </script>
+</body>
+</html>

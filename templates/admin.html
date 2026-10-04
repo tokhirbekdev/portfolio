@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Admin panel</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <header class="nav">
+    <a class="logo" href="{{ url_for('home') }}">&larr; View site</a>
+    <nav><a href="{{ url_for('logout') }}">Log out</a></nav>
+  </header>
+
+  <main class="admin">
+    <h1>Admin panel</h1>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for cat, msg in messages %}<div class="flash {{ cat }}">{{ msg }}</div>{% endfor %}
+    {% endwith %}
+
+    <!-- PROFILE -->
+    <section class="panel">
+      <h2>Profile</h2>
+      <form method="post" action="{{ url_for('update_profile') }}" enctype="multipart/form-data">
+        <div class="photo-row">
+          <div class="avatar small">
+            {% if s.photo %}<img src="{{ url_for('static', filename='uploads/' + s.photo) }}" alt="">
+            {% else %}<span>{{ s.name | initials }}</span>{% endif %}
+          </div>
+          <div>
+            <label>Profile photo <input type="file" name="photo" accept="image/*"></label>
+            {% if s.photo %}<label class="inline"><input type="checkbox" name="remove_photo"> Remove photo</label>{% endif %}
+          </div>
+        </div>
+        <label>Name <input name="name" value="{{ s.name }}" required></label>
+        <label>Job title <input name="title" value="{{ s.title }}"></label>
+        <label>Headline <input name="tagline" value="{{ s.tagline }}"></label>
+        <label>About me <textarea name="about" rows="4">{{ s.about }}</textarea></label>
+        <label>Skills (comma separated) <input name="skills" value="{{ s.skills }}"></label>
+        <label>Email <input name="email" value="{{ s.email }}"></label>
+        <label>GitHub link <input name="github" value="{{ s.github }}"></label>
+        <label>LinkedIn link <input name="linkedin" value="{{ s.linkedin }}"></label>
+        <button class="btn" type="submit">Save</button>
+      </form>
+    </section>
+
+    <!-- PROJECTS -->
+    <section class="panel">
+      <h2>Add a new project</h2>
+      <form method="post" action="{{ url_for('add_project') }}" enctype="multipart/form-data">
+        <label>Title <input name="title" required></label>
+        <label>Description <textarea name="description" rows="3"></textarea></label>
+        <label>Technologies (comma separated) <input name="tech" placeholder="Python, Flask, SQLite3"></label>
+        <label>Link <input name="link" placeholder="https://github.com/..."></label>
+        <label>Project image <input type="file" name="image" accept="image/*"></label>
+        <button class="btn" type="submit">Add project</button>
+      </form>
+
+      <h3>Existing projects</h3>
+      <ul class="items">
+        {% for p in projects %}
+        <li>
+          <div class="mini">
+            {% if p.image %}<img src="{{ url_for('static', filename='uploads/' + p.image) }}" alt="">
+            {% else %}<span>{{ p.title[0] | upper }}</span>{% endif %}
+          </div>
+          <strong>{{ p.title }}</strong>
+          <form method="post" action="{{ url_for('delete_project', pid=p.id) }}" onsubmit="return confirm('Delete this project?')">
+            <button class="btn danger small" type="submit">Delete</button>
+          </form>
+        </li>
+        {% else %}<li class="muted">No projects.</li>{% endfor %}
+      </ul>
+    </section>
+
+    <!-- GALLERY -->
+    <section class="panel">
+      <h2>Add images to the gallery</h2>
+      <form method="post" action="{{ url_for('add_gallery') }}" enctype="multipart/form-data">
+        <label>Images (you can select several) <input type="file" name="images" accept="image/*" multiple required></label>
+        <label>Caption (optional) <input name="caption"></label>
+        <button class="btn" type="submit">Upload</button>
+      </form>
+
+      <h3>Gallery</h3>
+      <ul class="items thumbs">
+        {% for g in gallery %}
+        <li>
+          <div class="mini big"><img src="{{ url_for('static', filename='uploads/' + g.image) }}" alt=""></div>
+          <span class="muted">{{ g.caption }}</span>
+          <form method="post" action="{{ url_for('delete_gallery', gid=g.id) }}" onsubmit="return confirm('Delete this image?')">
+            <button class="btn danger small" type="submit">Delete</button>
+          </form>
+        </li>
+        {% else %}<li class="muted">The gallery is empty.</li>{% endfor %}
+      </ul>
+    </section>
+  </main>
+</body>
+</html>

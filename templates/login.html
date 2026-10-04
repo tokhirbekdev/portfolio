@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Admin login</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <main class="narrow">
+    <h2>Admin login</h2>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for cat, msg in messages %}<div class="flash {{ cat }}">{{ msg }}</div>{% endfor %}
+    {% endwith %}
+    <form method="post" class="panel">
+      <label>Password
+        <input type="password" name="password" autofocus required>
+      </label>
+      <button class="btn" type="submit">Log in</button>
+    </form>
+    <p><a href="{{ url_for('home') }}">&larr; Back to site</a></p>
+  </main>
+</body>
+</html>
